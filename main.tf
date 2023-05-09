@@ -55,7 +55,7 @@ resource "databricks_cluster" "tiny-packt" {
 }
 
 resource "databricks_cluster" "tiny-packt-ml" {
-  cluster_name = "tiny"
+  cluster_name = "tiny-packt-ml"
   node_type_id = "g4dn.xlarge"
   autotermination_minutes = 10
   spark_version = "13.0 ML"

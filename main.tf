@@ -34,6 +34,10 @@ data "databricks_spark_version" "latest_lts" {
   long_term_support = true
 }
 
+data "databricks_spark_version" "gpu_ml" {
+  ml  = true
+}
+
 resource "databricks_cluster" "tiny-packt" {
   cluster_name = "tiny-packt-etl"
   spark_version = data.databricks_spark_version.latest_lts.id
@@ -62,7 +66,7 @@ resource "databricks_cluster" "tiny-packt-ml" {
   cluster_name = "tiny-packt-ml"
   node_type_id = "g4dn.xlarge"
   autotermination_minutes = 10
-  spark_version = "13.0 ML"
+   spark_version = data.databricks_spark_version.gpu_ml.id
     autoscale {
     min_workers = 1
     max_workers = 2

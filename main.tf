@@ -39,11 +39,14 @@ resource "databricks_cluster" "tiny-packt" {
   spark_version = data.databricks_spark_version.latest_lts.id
   node_type_id = "m5.large"
   autotermination_minutes = 10
-  num_workers = 0
-   spark_conf = {
-    "spark.databricks.cluster.profile" : "singleNode"
-    "spark.master" : "local[*]"
+    autoscale {
+    min_workers = 1
+    max_workers = 2
   }
+#   spark_conf = {
+#    "spark.databricks.cluster.profile" : "singleNode"
+#    "spark.master" : "local[*]"
+ # }
   aws_attributes {
     first_on_demand = 1
     availability = "SPOT_WITH_FALLBACK"
@@ -60,11 +63,14 @@ resource "databricks_cluster" "tiny-packt-ml" {
   node_type_id = "g4dn.xlarge"
   autotermination_minutes = 10
   spark_version = "13.0 ML"
-  num_workers = 0
-  spark_conf = {
-    "spark.databricks.cluster.profile" : "singleNode"
-    "spark.master" : "local[*]"
+    autoscale {
+    min_workers = 1
+    max_workers = 2
   }
+ # spark_conf = {
+ #   "spark.databricks.cluster.profile" : "singleNode"
+ #   "spark.master" : "local[*]"
+ # }
   aws_attributes {
     first_on_demand = 1
     availability = "SPOT_WITH_FALLBACK"

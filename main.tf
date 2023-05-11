@@ -38,7 +38,7 @@ data "databricks_spark_version" "gpu_ml" {
   ml  = true
 }
 
-resource "databricks_cluster" "tiny-packt" {
+/*resource "databricks_cluster" "tiny-packt" {
   cluster_name = "tiny-packt-etl"
   spark_version = data.databricks_spark_version.latest_lts.id
   node_type_id = "m5.large"
@@ -84,5 +84,97 @@ resource "databricks_cluster" "tiny-packt-ml" {
     ebs_volume_count = 3
     ebs_volume_size = 100
   }
-}
+}*/
 
+
+resource "databricks_job" "etl" {
+ name = "Job with multiple tasks"
+ max_concurrent_runs = 1
+
+ # job schedule
+ #schedule {
+ #  quartz_cron_expression = "0 0 0 ? 1/1 * *" # cron schedule of job
+ #  timezone_id = "UTC"
+ # }
+
+ # notifications at job level
+ email_notifications {
+   on_success = ["bclipp770@gmail.com", "bclipp770@gmail.com"]
+     on_start   = ["bclipp770@gmail.com"]
+     on_failure = ["bclipp770@gmail.com"]
+ }
+
+   job_cluster {
+   new_cluster {
+
+    spark_version = data.databricks_spark_version.latest_lts.id
+    node_type_id = "m5.large"
+     #spark_env_vars = {
+     #  PYSPARK_PYTHON = "/databricks/python3/bin/python3"
+     #}
+     num_workers        = 1
+     data_security_mode = "NONE"
+  spark_version = data.databricks_spark_version.latest_lts.id
+  node_type_id = "m5.large"
+  autotermination_minutes = 10
+
+  aws_attributes {
+    first_on_demand = 1
+    availability = "SPOT_WITH_FALLBACK"
+    zone_id = "us-west-2b"
+    spot_bid_price_percent = 100
+    ebs_volume_type = "GENERAL_PURPOSE_SSD"
+    ebs_volume_count = 3
+    ebs_volume_size = 100
+  }
+   }
+   job_cluster_key = "Shared_job_cluster"
+ }
+
+  task {
+    task_key = "a"
+    name = "Extract"
+    library {
+     pypi {
+       package = "faker"
+     }
+   }
+        python_wheel_task {
+      package_name = "etl-jobs"
+      entry_point = "main"
+    }
+
+       # timeout and retries
+   timeout_seconds = 1000
+   min_retry_interval_millis = 900000
+   max_retries = 1
+  }
+
+
+
+  task {
+    name = "Transform and Load"
+    task_key = "b"
+
+   # you can stack multiple depends_on blocks
+   depends_on {
+     task_key = "name_of_my_first_task"
+   }
+
+   # libraries needed
+   library {
+     pypi {
+       package = "faker"
+     }
+   }
+        python_wheel_task {
+      package_name = "etl-jobs"
+      entry_point = "main"
+    }
+
+   # timeout and retries
+   timeout_seconds = 1000
+   min_retry_interval_millis = 900000
+   max_retries = 1
+ }
+}

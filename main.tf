@@ -38,6 +38,14 @@ data "databricks_spark_version" "gpu_ml" {
   ml  = true
 }
 
+resource "databricks_library" "fbprophet" {
+  cluster_id = "Shared_job_cluster"
+  pypi {
+    package = "etl-jobs==0.1.1"
+    // repo can also be specified here
+  }
+}
+
 /*resource "databricks_cluster" "tiny-packt" {
   cluster_name = "tiny-packt-etl"
   spark_version = data.databricks_spark_version.latest_lts.id

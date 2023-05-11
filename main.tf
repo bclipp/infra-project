@@ -106,7 +106,6 @@ resource "databricks_job" "etl" {
 
    job_cluster {
    new_cluster {
-
     spark_version = data.databricks_spark_version.latest_lts.id
     node_type_id = "m5.large"
      #spark_env_vars = {
@@ -114,8 +113,6 @@ resource "databricks_job" "etl" {
      #}
      num_workers        = 1
      data_security_mode = "NONE"
-  spark_version = data.databricks_spark_version.latest_lts.id
-  node_type_id = "m5.large"
   autotermination_minutes = 10
 
   aws_attributes {

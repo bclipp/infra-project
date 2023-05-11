@@ -129,8 +129,7 @@ resource "databricks_job" "etl" {
  }
 
   task {
-    task_key = "a"
-    name = "Extract"
+    task_key = "a_extract"
     library {
      pypi {
        package = "faker"
@@ -150,8 +149,7 @@ resource "databricks_job" "etl" {
 
 
   task {
-    name = "Transform and Load"
-    task_key = "b"
+    task_key = "b_ransform_and_Load"
 
    # you can stack multiple depends_on blocks
    depends_on {

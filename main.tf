@@ -38,14 +38,6 @@ data "databricks_spark_version" "gpu_ml" {
   ml  = true
 }
 
-resource "databricks_library" "fbprophet" {
-  cluster_id = "Shared_job_cluster"
-  pypi {
-    package = "etl-jobs==0.1.1"
-    // repo can also be specified here
-  }
-}
-
 /*resource "databricks_cluster" "tiny-packt" {
   cluster_name = "tiny-packt-etl"
   spark_version = data.databricks_spark_version.latest_lts.id
@@ -114,6 +106,14 @@ resource "databricks_job" "etl" {
 
    job_cluster {
    new_cluster {
+     resource "databricks_library" "fbprophet" {
+  cluster_id = databricks_cluster.Shared_job_cluster.id
+  pypi {
+    package = "etl-jobs==0.1.1"
+    // repo can also be specified here
+  }
+}
+     
     spark_version = data.databricks_spark_version.latest_lts.id
     node_type_id = "m5.large"
      #spark_env_vars = {

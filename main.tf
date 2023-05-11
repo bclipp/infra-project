@@ -88,7 +88,7 @@ resource "databricks_cluster" "tiny-packt-ml" {
 
 
 resource "databricks_job" "etl" {
- name = "Job with multiple tasks"
+ name = "etl"
  max_concurrent_runs = 1
 
  # job schedule
@@ -132,7 +132,7 @@ resource "databricks_job" "etl" {
     job_cluster_key = "Shared_job_cluster"
     library {
      pypi {
-       package = "faker"
+       package = "etl-jobs"
      }
    }
         python_wheel_task {
@@ -159,7 +159,7 @@ resource "databricks_job" "etl" {
    # libraries needed
    library {
      pypi {
-       package = "faker"
+       package = "etl-jobs"
      }
    }
         python_wheel_task {

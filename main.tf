@@ -152,7 +152,7 @@ resource "databricks_job" "etl" {
 
    # you can stack multiple depends_on blocks
    depends_on {
-     task_key = "name_of_my_first_task"
+     task_key = "a_extract"
    }
 
    # libraries needed

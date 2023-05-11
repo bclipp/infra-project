@@ -113,7 +113,6 @@ resource "databricks_job" "etl" {
      #}
      num_workers        = 1
      data_security_mode = "NONE"
-  autotermination_minutes = 10
 
   aws_attributes {
     first_on_demand = 1

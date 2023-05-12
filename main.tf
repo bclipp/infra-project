@@ -39,12 +39,27 @@ data "databricks_spark_version" "gpu_ml" {
   ml = true
 }
 
-resource "databricks_library" "jobs_cluster_lib" {
+resource "databricks_library" "jobs_cluster_lib_etl" {
   cluster_id = databricks_cluster.tiny-packt.id
   pypi {
     package = "etl-jobs==0.1.1"
   }
 }
+
+resource "databricks_library" "jobs_cluster_lib_schema" {
+  cluster_id = databricks_cluster.tiny-packt.id
+  pypi {
+    package = "schema-jobs==0.1.0"
+  }
+}
+
+resource "databricks_library" "jobs_cluster_lib_ml" {
+  cluster_id = databricks_cluster.tiny-packt-ml.id
+  pypi {
+    package = "ml-jobs==0.1.0"
+  }
+}
+
 
 resource "databricks_cluster" "tiny-packt" {
   cluster_name            = "tiny-packt-etl"
@@ -92,6 +107,47 @@ resource "databricks_job" "etl" {
   name                = "etl"
   max_concurrent_runs = 1
 
+  email_notifications {
+    on_success = ["bclipp770@gmail.com", "bclipp770@gmail.com"]
+    on_start   = ["bclipp770@gmail.com"]
+    on_failure = ["bclipp770@gmail.com"]
+  }
+
+  task {
+    task_key            = "a_extract"
+    existing_cluster_id = databricks_cluster.tiny-packt.id
+    python_wheel_task {
+      package_name = "etl_jobs"
+      entry_point  = "main"
+    }
+
+    timeout_seconds           = 1000
+    min_retry_interval_millis = 900000
+    max_retries               = 1
+  }
+
+  task {
+    task_key            = "b_ransform_and_Load"
+    existing_cluster_id = databricks_cluster.tiny-packt.id
+    depends_on {
+      task_key = "a_extract"
+    }
+
+    python_wheel_task {
+      package_name = "etl_jobs"
+      entry_point  = "main"
+    }
+
+    timeout_seconds           = 1000
+    min_retry_interval_millis = 900000
+    max_retries               = 1
+  }
+}
+
+resource "databricks_job" "schema-jobs" {
+  name                = "schema-jobs"
+  max_concurrent_runs = 1
+
   # job schedule
   #schedule {
   #  quartz_cron_expression = "0 0 0 ? 1/1 * *" # cron schedule of job
@@ -106,38 +162,42 @@ resource "databricks_job" "etl" {
   }
 
   task {
-    task_key            = "a_extract"
+    task_key            = "schema-jobs"
     existing_cluster_id = databricks_cluster.tiny-packt.id
-    /* library {
-     pypi {
-       package = "etl-jobs"
-     }
-   }*/
     python_wheel_task {
-      package_name = "etl_jobs"
+      package_name = "schema_jobs"
       entry_point  = "main"
     }
-
-    # timeout and retries
     timeout_seconds           = 1000
     min_retry_interval_millis = 900000
     max_retries               = 1
   }
+}
+
+resource "databricks_job" "ml-jobs" {
+  name                = "ml-jobs"
+  max_concurrent_runs = 1
+
+  # job schedule
+  #schedule {
+  #  quartz_cron_expression = "0 0 0 ? 1/1 * *" # cron schedule of job
+  #  timezone_id = "UTC"
+  # }
 
 
+  email_notifications {
+    on_success = ["bclipp770@gmail.com", "bclipp770@gmail.com"]
+    on_start   = ["bclipp770@gmail.com"]
+    on_failure = ["bclipp770@gmail.com"]
+  }
 
   task {
-    task_key            = "b_ransform_and_Load"
+    task_key            = "ml-jobs"
     existing_cluster_id = databricks_cluster.tiny-packt.id
-    depends_on {
-      task_key = "a_extract"
-    }
-
     python_wheel_task {
-      package_name = "etl_jobs"
+      package_name = "ml_jobs"
       entry_point  = "main"
     }
-
     timeout_seconds           = 1000
     min_retry_interval_millis = 900000
     max_retries               = 1

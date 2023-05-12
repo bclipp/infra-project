@@ -55,10 +55,7 @@ resource "databricks_cluster" "tiny-packt" {
     min_workers = 1
     max_workers = 2
   }
-  #   spark_conf = {
-  #    "spark.databricks.cluster.profile" : "singleNode"
-  #    "spark.master" : "local[*]"
-  # }
+
   aws_attributes {
     first_on_demand        = 1
     availability           = "SPOT_WITH_FALLBACK"
@@ -79,10 +76,6 @@ resource "databricks_cluster" "tiny-packt-ml" {
     min_workers = 1
     max_workers = 2
   }
-  # spark_conf = {
-  #   "spark.databricks.cluster.profile" : "singleNode"
-  #   "spark.master" : "local[*]"
-  # }
   aws_attributes {
     first_on_demand        = 1
     availability           = "SPOT_WITH_FALLBACK"
@@ -105,7 +98,7 @@ resource "databricks_job" "etl" {
   #  timezone_id = "UTC"
   # }
 
-  # notifications at job level
+
   email_notifications {
     on_success = ["bclipp770@gmail.com", "bclipp770@gmail.com"]
     on_start   = ["bclipp770@gmail.com"]
@@ -140,11 +133,6 @@ resource "databricks_job" "etl" {
       task_key = "a_extract"
     }
 
-    /*  library {
-     pypi {
-       package = "etl-jobs"
-     }
-   }*/
     python_wheel_task {
       package_name = "etl_jobs"
       entry_point  = "main"

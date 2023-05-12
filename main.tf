@@ -114,11 +114,11 @@ resource "databricks_job" "etl" {
   task {
     task_key = "a_extract"
     existing_cluster_id = "${databricks_cluster.tiny-packt.id}"
-    library {
+   /* library {
      pypi {
        package = "etl-jobs"
      }
-   }
+   }*/
         python_wheel_task {
       package_name = "etl-jobs"
       entry_point = "main"
@@ -139,11 +139,11 @@ resource "databricks_job" "etl" {
      task_key = "a_extract"
    }
 
-   library {
+ /*  library {
      pypi {
        package = "etl-jobs"
      }
-   }
+   }*/
         python_wheel_task {
       package_name = "etl-jobs"
       entry_point = "main"

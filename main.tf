@@ -1,5 +1,6 @@
 
 terraform {
+  required_version = "0.13.0"
   cloud {
     organization = "brians_stuff"
 

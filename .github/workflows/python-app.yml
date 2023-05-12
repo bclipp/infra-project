@@ -24,4 +24,4 @@ jobs:
     - name: Run Pre-commit
       run: |
         pre-commit install
-        run pre-commit run --all-files
+        pre-commit run --all-files

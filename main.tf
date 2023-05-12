@@ -38,7 +38,14 @@ data "databricks_spark_version" "gpu_ml" {
   ml  = true
 }
 
-/*resource "databricks_cluster" "tiny-packt" {
+resource "databricks_library" "jobs_cluster_lib" {
+  cluster_id = databricks_cluster.tiny-packt.id
+  pypi {
+    package = "etl-jobs==0.1.1"
+  }
+}
+
+resource "databricks_cluster" "tiny-packt" {
   cluster_name = "tiny-packt-etl"
   spark_version = data.databricks_spark_version.latest_lts.id
   node_type_id = "m5.large"
@@ -84,7 +91,7 @@ resource "databricks_cluster" "tiny-packt-ml" {
     ebs_volume_count = 3
     ebs_volume_size = 100
   }
-}*/
+}
 
 
 resource "databricks_job" "etl" {
@@ -104,40 +111,9 @@ resource "databricks_job" "etl" {
      on_failure = ["bclipp770@gmail.com"]
  }
 
-   job_cluster {
-   new_cluster {
-     resource "databricks_library" "fbprophet" {
-  cluster_id = databricks_cluster.Shared_job_cluster.id
-  pypi {
-    package = "etl-jobs==0.1.1"
-    // repo can also be specified here
-  }
-}
-     
-    spark_version = data.databricks_spark_version.latest_lts.id
-    node_type_id = "m5.large"
-     #spark_env_vars = {
-     #  PYSPARK_PYTHON = "/databricks/python3/bin/python3"
-     #}
-     num_workers        = 1
-     data_security_mode = "NONE"
-
-  aws_attributes {
-    first_on_demand = 1
-    availability = "SPOT_WITH_FALLBACK"
-    zone_id = "us-west-2b"
-    spot_bid_price_percent = 100
-    ebs_volume_type = "GENERAL_PURPOSE_SSD"
-    ebs_volume_count = 3
-    ebs_volume_size = 100
-  }
-   }
-   job_cluster_key = "Shared_job_cluster"
- }
-
   task {
     task_key = "a_extract"
-    job_cluster_key = "Shared_job_cluster"
+    existing_cluster_id = "${databricks_cluster.tiny-packt.id}"
     library {
      pypi {
        package = "etl-jobs"
@@ -158,13 +134,11 @@ resource "databricks_job" "etl" {
 
   task {
     task_key = "b_ransform_and_Load"
-    job_cluster_key = "Shared_job_cluster"
-   # you can stack multiple depends_on blocks
+    existing_cluster_id =  "${databricks_cluster.tiny-packt.id}"
    depends_on {
      task_key = "a_extract"
    }
 
-   # libraries needed
    library {
      pypi {
        package = "etl-jobs"
@@ -175,7 +149,6 @@ resource "databricks_job" "etl" {
       entry_point = "main"
     }
 
-   # timeout and retries
    timeout_seconds = 1000
    min_retry_interval_millis = 900000
    max_retries = 1

@@ -121,7 +121,7 @@ resource "databricks_job" "etl" {
      }
    }*/
     python_wheel_task {
-      package_name = "etl-jobs"
+      package_name = "etl_jobs"
       entry_point  = "main"
     }
 
@@ -146,7 +146,7 @@ resource "databricks_job" "etl" {
      }
    }*/
     python_wheel_task {
-      package_name = "etl-jobs"
+      package_name = "etl_jobs"
       entry_point  = "main"
     }
 
